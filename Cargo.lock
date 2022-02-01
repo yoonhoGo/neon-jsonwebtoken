@@ -133,18 +133,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "jsonwebtoken-neon"
-version = "0.1.0"
-dependencies = [
- "error-chain",
- "jsonwebtoken",
- "neon",
- "num",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -210,6 +198,18 @@ name = "neon-build"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ad9febc63f515156d4311a0c43899d3ace46352ecdd591c21b98ca3974f2a0d0"
+
+[[package]]
+name = "neon-jsonwebtoken"
+version = "0.1.0"
+dependencies = [
+ "error-chain",
+ "jsonwebtoken",
+ "neon",
+ "num",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "neon-macros"

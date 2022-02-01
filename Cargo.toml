@@ -1,5 +1,5 @@
 [package]
-name = "jsonwebtoken-neon"
+name = "neon-jsonwebtoken"
 version = "0.1.0"
 authors = ["yoonhoGo <lylisha@gmail.com>"]
 license = "ISC"
