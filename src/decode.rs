@@ -26,15 +26,7 @@ pub fn decode(mut cx: FunctionContext) -> JsResult<JsValue> {
   let decode_result = cx.empty_object();
   decode_result.set(&mut cx, "payload", claim_object)?;
 
-  let header = cx.empty_object();
-  let alg = cx.string(alg_to_string(payload.header.alg));
-  header.set(&mut cx, "alg", alg)?;
-  insert_header(&mut cx, header, "cty", payload.header.cty);
-  insert_header(&mut cx, header, "jku", payload.header.jku);
-  insert_header(&mut cx, header, "kid", payload.header.kid);
-  insert_header(&mut cx, header, "typ", payload.header.typ);
-  insert_header(&mut cx, header, "x5t", payload.header.x5t);
-  insert_header(&mut cx, header, "x5u", payload.header.x5u);
+  let header = payload.header.to_object(&mut cx);
 
   decode_result.set(&mut cx, "header", header)?;
   let signature = cx.string(jwt.split(".").nth(2).unwrap().to_string());
@@ -47,15 +39,48 @@ pub fn decode(mut cx: FunctionContext) -> JsResult<JsValue> {
   )
 }
 
-fn insert_header(
-  cx: &mut FunctionContext,
-  header: Handle<JsObject>,
-  option_key: &str,
-  option: Option<String>,
-) {
-  if option.is_some() {
-    let option_value = cx.string(option.unwrap());
-    header.set(cx, option_key, option_value).unwrap();
+trait ToObject {
+  fn to_object<'a>(self, cx: &mut FunctionContext<'a>) -> Handle<'a, JsObject>;
+}
+
+impl ToObject for jsonwebtoken::Header {
+  fn to_object<'a>(self, cx: &mut FunctionContext<'a>) -> Handle<'a, JsObject> {
+    let mut header = cx.empty_object();
+
+    let alg = cx.string(alg_to_string(self.alg));
+    header.set(cx, "alg", alg).unwrap();
+    header.set_optional(cx, "cty", self.cty).unwrap();
+    header.set_optional(cx, "jku", self.jku).unwrap();
+    header.set_optional(cx, "kid", self.kid).unwrap();
+    header.set_optional(cx, "typ", self.typ).unwrap();
+    header.set_optional(cx, "x5t", self.x5t).unwrap();
+    header.set_optional(cx, "x5u", self.x5u).unwrap();
+
+    header
+  }
+}
+
+trait SetOptional {
+  fn set_optional<'a>(
+    &mut self,
+    cx: &mut FunctionContext<'a>,
+    key: &str,
+    value: Option<String>,
+  ) -> NeonResult<()>;
+}
+
+impl SetOptional for neon::prelude::JsObject {
+  fn set_optional<'a>(
+    &mut self,
+    cx: &mut FunctionContext<'a>,
+    key: &str,
+    value: Option<String>,
+  ) -> NeonResult<()> {
+    if value.is_some() {
+      let js_string = cx.string(value.unwrap());
+      self.set(cx, key, js_string).unwrap(); 
+    }
+    Ok(())
   }
 }
 
