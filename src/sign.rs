@@ -1,42 +1,27 @@
-use crate::utils::to_json;
-use jsonwebtoken::encode;
-use jsonwebtoken::Algorithm;
-use jsonwebtoken::{EncodingKey, Header};
+use crate::jsonwebtoken_mod::algorithm::Key;
+use crate::neon_serde;
+use crate::utils::now;
+use jsonwebtoken::{encode, Algorithm, Header};
 use neon::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
-use std::time::SystemTime;
-use std::time::UNIX_EPOCH;
 
 pub fn sign(mut cx: FunctionContext) -> JsResult<JsString> {
-  let payload = cx.argument::<JsObject>(0)?;
+  let payload = cx.argument::<JsValue>(0)?;
   let key = cx.argument::<JsString>(1)?.value(&mut cx);
-  let options = cx
-    .argument_opt(2)
-    .unwrap_or(cx.empty_object().downcast_or_throw::<JsValue, _>(&mut cx)?)
-    .downcast_or_throw::<JsObject, _>(&mut cx)?;
+  let options = cx.argument_opt(2);
 
-  let payload_json = to_json(&mut cx, payload)?.value(&mut cx);
-  let mut claims: Claims = serde_json::from_str(payload_json.as_str()).unwrap();
-
-  let options_json = to_json(&mut cx, options)?.value(&mut cx);
-  let sign_options: SignOptions = serde_json::from_str(options_json.as_str()).unwrap();
-
+  let mut claims: Claims = neon_serde::from_value(&mut cx, payload).unwrap();
+  let sign_options: SignOptions =
+    neon_serde::from_value_opt(&mut cx, options).unwrap_or(SignOptions::default());
   sign_options.parse_options(&mut claims);
 
-  let encoding_key = match sign_options.header.unwrap_or(Header::default()).alg {
-    Algorithm::HS256 | Algorithm::HS384 | Algorithm::HS512 => {
-      EncodingKey::from_secret(key.as_bytes())
-    }
-    Algorithm::RS256
-    | Algorithm::RS384
-    | Algorithm::RS512
-    | Algorithm::PS256
-    | Algorithm::PS384
-    | Algorithm::PS512 => EncodingKey::from_rsa_pem(key.as_bytes()).unwrap(),
-    Algorithm::ES256 | Algorithm::ES384 => EncodingKey::from_ec_pem(key.as_bytes()).unwrap(),
-  };
+  let encoding_key = sign_options
+    .header
+    .unwrap_or(Header::default())
+    .alg
+    .get_encoding_key(key.as_bytes());
 
   let token = encode(&Header::default(), &claims, &encoding_key).unwrap();
 
@@ -45,17 +30,10 @@ pub fn sign(mut cx: FunctionContext) -> JsResult<JsString> {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
-  #[serde(default = "default_iat")]
+  #[serde(default = "now")]
   iat: u64,
   #[serde(flatten)]
   extra: HashMap<String, Value>,
-}
-
-fn default_iat() -> u64 {
-  let start = SystemTime::now();
-  let since_the_epoch = start.duration_since(UNIX_EPOCH).unwrap();
-
-  since_the_epoch.as_secs()
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -103,5 +81,22 @@ impl SignOptions {
     self.insert_claim(claims, "iss", &self.issuer);
     self.insert_claim(claims, "jti", &self.jwtid);
     self.insert_claim(claims, "sub", &self.subject);
+  }
+}
+
+impl Default for SignOptions {
+  fn default() -> Self {
+    SignOptions {
+      algorithm: Some(Algorithm::HS256),
+      expires_in: None,
+      not_before: None,
+      audience: None,
+      issuer: None,
+      jwtid: None,
+      subject: None,
+      no_timestamp: None,
+      header: None,
+      keyid: None,
+    }
   }
 }
