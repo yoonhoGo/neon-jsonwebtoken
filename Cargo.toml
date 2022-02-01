@@ -15,8 +15,13 @@ crate-type = ["cdylib"]
 jsonwebtoken = "7"
 serde = {version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+error-chain = "0.12.4"
 
 [dependencies.neon]
 version = "0.9"
 default-features = false
-features = ["napi-6"]
+features = ["napi-6", "channel-api"]
+
+[dependencies.num]
+version = "0.4.0"
+default-features = false
