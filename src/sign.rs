@@ -75,8 +75,16 @@ impl SignOptions {
   }
 
   fn parse_options(&self, claims: &mut Claims) {
-    self.insert_claim_u64(claims, "exp", self.expires_in);
-    self.insert_claim_u64(claims, "nbf", self.not_before);
+    self.insert_claim_u64(
+      claims,
+      "exp",
+      self.expires_in.and_then(|exp| Some(exp + now())),
+    );
+    self.insert_claim_u64(
+      claims,
+      "nbf",
+      self.not_before.and_then(|nbf| Some(nbf + now())),
+    );
     self.insert_claim(claims, "aud", &self.audience);
     self.insert_claim(claims, "iss", &self.issuer);
     self.insert_claim(claims, "jti", &self.jwtid);

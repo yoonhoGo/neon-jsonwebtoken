@@ -18,7 +18,6 @@ pub fn verify(mut cx: FunctionContext) -> JsResult<JsValue> {
   let key = decode_options.get_key(key.as_bytes());
 
   let payload = decode::<Claims>(&jwt, &key, &validation).unwrap();
-
   let claim_object = neon_serde::to_value(&mut cx, &payload.claims).unwrap();
 
   if !decode_options.complete.unwrap_or(false) {

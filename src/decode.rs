@@ -9,10 +9,8 @@ use std::collections::HashMap;
 pub fn decode(mut cx: FunctionContext) -> JsResult<JsValue> {
   let jwt = cx.argument::<JsString>(0)?.value(&mut cx);
   let options = cx.argument_opt(1);
-  let decode_options: DecodeOptions = match options {
-    Some(options) => neon_serde::from_value(&mut cx, options).unwrap(),
-    _ => DecodeOptions::default(),
-  };
+  let decode_options: DecodeOptions =
+    neon_serde::from_value_opt(&mut cx, options).unwrap_or(DecodeOptions::default());
 
   let payload = dangerous_insecure_decode::<Claims>(&jwt).unwrap();
 
