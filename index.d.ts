@@ -7,7 +7,7 @@ export function sign(
 export function decode(
   token: string,
   secretOrPublicKey: string,
-  options?: DecodeOptions & { complite: true },
+  options: DecodeOptions & { complite: true },
 ): Jwt;
 export function decode(
   token: string,
@@ -18,7 +18,7 @@ export function decode(
 export function verify(
   token: string,
   secretOrPublicKey: string,
-  options?: VerifyOptions & { complite: true },
+  options: VerifyOptions & { complite: true },
 ): Jwt;
 export function verify(
   token: string,
