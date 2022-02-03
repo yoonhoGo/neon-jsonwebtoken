@@ -1,29 +1,29 @@
 export function sign(
   payload: object,
   key: string,
-  options?: SignOptions
+  options?: SignOptions,
 ): string;
 
 export function decode(
-  jwt: string,
-  key: string,
-  options?: DecodeOptions & { complite: true }
+  token: string,
+  secretOrPublicKey: string,
+  options?: DecodeOptions & { complite: true },
 ): Jwt;
 export function decode(
-  jwt: string,
-  key: string,
-  options?: DecodeOptions
+  token: string,
+  secretOrPublicKey: string,
+  options?: DecodeOptions,
 ): object;
 
 export function verify(
-  payload: object,
-  key: string,
-  options?: VerifyOptions & { complite: true }
+  token: string,
+  secretOrPublicKey: string,
+  options?: VerifyOptions & { complite: true },
 ): Jwt;
 export function verify(
-  payload: object,
-  key: string,
-  options?: VerifyOptions
+  token: string,
+  secretOrPublicKey: string,
+  options?: VerifyOptions,
 ): object;
 
 export interface SignOptions {
@@ -59,13 +59,10 @@ export interface JwtHeader {
   alg: string | Algorithm;
   typ?: string | undefined;
   cty?: string | undefined;
-  crit?: Array<string | Exclude<keyof JwtHeader, "crit">> | undefined;
   kid?: string | undefined;
   jku?: string | undefined;
   x5u?: string | string[] | undefined;
-  "x5t#S256"?: string | undefined;
   x5t?: string | undefined;
-  x5c?: string | string[] | undefined;
 }
 
 export interface JwtPayload {
@@ -86,15 +83,15 @@ export interface Jwt {
 }
 
 export type Algorithm =
-  | "HS256"
-  | "HS384"
-  | "HS512"
-  | "RS256"
-  | "RS384"
-  | "RS512"
-  | "ES256"
-  | "ES384"
-  | "ES512"
-  | "PS256"
-  | "PS384"
-  | "PS512";
+  | 'HS256'
+  | 'HS384'
+  | 'HS512'
+  | 'RS256'
+  | 'RS384'
+  | 'RS512'
+  | 'ES256'
+  | 'ES384'
+  | 'ES512'
+  | 'PS256'
+  | 'PS384'
+  | 'PS512';
