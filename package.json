@@ -1,6 +1,6 @@
 {
   "name": "neon-jsonwebtoken",
-  "version": "0.1.1-alpha.0",
+  "version": "0.1.1-alpha.1",
   "description": "This project was bootstrapped by [create-neon](https://www.npmjs.com/package/create-neon).",
   "main": "index.node",
   "scripts": {
