@@ -12,12 +12,12 @@
   },
   "author": "yoonhoGo <lylisha@gmail.com>",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "cargo-cp-artifact": "^0.1"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/yoonhoGo/jsonwebtoken-neon.git"
+    "url": "git+ssh://git@github.com/yoonhoGo/neon-jsonwebtoken.git"
   },
   "keywords": [
     "neon",
@@ -26,7 +26,7 @@
     "javascript"
   ],
   "bugs": {
-    "url": "https://github.com/yoonhoGo/jsonwebtoken-neon/issues"
+    "url": "https://github.com/yoonhoGo/neon-jsonwebtoken/issues"
   },
-  "homepage": "https://github.com/yoonhoGo/jsonwebtoken-neon#readme"
+  "homepage": "https://github.com/yoonhoGo/neon-jsonwebtoken#readme"
 }
