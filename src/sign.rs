@@ -7,11 +7,33 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 
-pub fn sign(mut cx: FunctionContext) -> JsResult<JsString> {
+pub fn sign_async(mut cx: FunctionContext) -> JsResult<JsUndefined> {
   let payload = cx.argument::<JsValue>(0)?;
-  let key = cx.argument::<JsString>(1)?.value(&mut cx);
+  let key = cx.argument::<JsString>(1)?;
+  let options = cx.argument(2);
+  let callback = cx.argument::<JsFunction>(3)?.root(&mut cx);
+  let channel = cx.channel();
+
+  let toekn = sign(cx, payload, key, options);
+
+  Ok(cx.undefined())
+}
+
+pub fn sign_sync(mut cx: FunctionContext) -> JsResult<JsString> {
+  let payload = cx.argument::<JsValue>(0)?;
+  let key = cx.argument::<JsString>(1)?;
   let options = cx.argument_opt(2);
 
+  sign(cx, payload, key, options)
+}
+
+pub fn sign<'a>(
+  mut cx: FunctionContext<'a>,
+  payload: Handle<'a, JsValue>,
+  key: Handle<'a, JsString>,
+  options: Option<Handle<'a, JsValue>>,
+) -> JsResult<'a, JsString> {
+  let key = key.value(&mut cx);
   let mut claims: Claims = neon_serde::from_value(&mut cx, payload).unwrap();
   let sign_options: SignOptions =
     neon_serde::from_value_opt(&mut cx, options).unwrap_or(SignOptions::default());
